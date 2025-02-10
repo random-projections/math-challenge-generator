@@ -117,7 +117,7 @@ def generate_word_problem():
         3. Do not hallucinate, the answer should be a number
         4. Do not hallucinate. Make sure your answer is correct."""},
                 {"role": "user", "content": prompt}],
-            temperature=0.2
+            temperature=0.7
         )
         
         # Add model verification to the response logging
