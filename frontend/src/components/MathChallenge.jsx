@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://math-challenge-gen-backend-production.up.railway.app';
+const API_URL = process.env.REACT_APP_API_URL || 'https://math-challenge-generator-backend.up.railway.app';
 
 function MathChallenge() {
     const [problem, setProblem] = useState(null);
@@ -12,13 +12,16 @@ function MathChallenge() {
 
     const fetchNewProblem = async () => {
         setLoading(true);
+        console.log('Fetching from:', API_URL);
         try {
             const response = await axios.get(`${API_URL}/problem`);
+            console.log('Response:', response.data);
             setProblem(response.data);
             setUserAnswer('');
             setFeedback(null);
         } catch (error) {
             console.error('Error details:', error.message);
+            console.error('API URL used:', API_URL);
             if (error.response) {
                 console.error('Response data:', error.response.data);
                 console.error('Response status:', error.response.status);

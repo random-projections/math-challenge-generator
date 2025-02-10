@@ -10,7 +10,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",  # Local development
-        "https://math-challenge-gen.railway.app",  # Railway frontend
+        "https://math-challenge-generator.up.railway.app",  # Updated frontend URL
+        "https://math-challenge-gen.railway.app",  # Alternative URL
         "https://*.up.railway.app",  # Any Railway subdomain
         os.getenv("FRONTEND_URL", "")  # Flexible frontend URL from environment
     ],
@@ -54,3 +55,7 @@ def check_answer(answer_request: AnswerRequest):
         "correct_answer": correct_answer,
         "explanation": problem_explanations.get(answer_request.problem_id, "No explanation available")
     }
+
+@app.get("/health")
+def health_check():
+    return {"status": "healthy", "message": "Math Challenge Generator API is running"}
