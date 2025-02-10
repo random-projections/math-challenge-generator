@@ -1,1 +1,1 @@
-web: uvicorn main:challenge_server --host 0.0.0.0 --port $PORT
+web: cd backend && uvicorn challenge_server:app --host 0.0.0.0 --port $PORT

@@ -2,12 +2,17 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from problem_generator import generate_word_problem
+import os
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[
+        "http://localhost:3000",  # Local development
+        "https://your-frontend-url.railway.app",  # Add your Railway frontend URL
+        os.getenv("FRONTEND_URL", "")  # Flexible frontend URL from environment
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
