@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from problem_generator import generate_word_problem
 import os
 from pathlib import Path
+import logging
 
 app = FastAPI()
 
@@ -35,6 +36,10 @@ if (FRONTEND_DIR / "static").exists():
     app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR / "static")), name="static")
 else:
     print(f"Static directory not found at {FRONTEND_DIR / 'static'}")  # Debug print
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # API routes should come BEFORE the catch-all frontend route
 @app.get("/api/problem")
@@ -72,25 +77,32 @@ def health_check():
 # Frontend routes should come AFTER API routes
 @app.get("/")
 async def root():
-    return await serve_frontend("")
+    try:
+        logger.info("Attempting to serve frontend")
+        return await serve_frontend("")
+    except Exception as e:
+        logger.error(f"Error serving frontend: {str(e)}")
+        return {"error": str(e)}
 
 @app.get("/{full_path:path}")
 async def serve_frontend(full_path: str):
-    print(f"Requested path: {full_path}")  # Debug print
-    
-    # If it's an API route, don't try to serve frontend files
-    if full_path.startswith("api/"):
-        raise HTTPException(status_code=404)
-    
-    # If frontend isn't built, return a helpful message
-    if not FRONTEND_DIR.exists():
-        print(f"Frontend directory does not exist: {FRONTEND_DIR}")  # Debug print
-        return {"message": "Frontend not built. Please run 'cd frontend && npm install && npm run build'"}
-    
-    index_file = FRONTEND_DIR / "index.html"
-    if not index_file.exists():
-        print(f"index.html not found at {index_file}")  # Debug print
-        return {"message": "Frontend build incomplete. Missing index.html"}
-    
-    print(f"Serving index.html from {index_file}")  # Debug print
-    return FileResponse(str(index_file))
+    logger.info(f"Requested path: {full_path}")
+    try:
+        if full_path.startswith("api/"):
+            raise HTTPException(status_code=404)
+        
+        # If frontend isn't built, return a helpful message
+        if not FRONTEND_DIR.exists():
+            logger.error(f"Frontend directory does not exist: {FRONTEND_DIR}")
+            return {"message": "Frontend not built"}
+        
+        index_file = FRONTEND_DIR / "index.html"
+        if not index_file.exists():
+            logger.error(f"index.html not found at {index_file}")
+            return {"message": "Frontend build incomplete"}
+        
+        logger.info(f"Serving index.html from {index_file}")
+        return FileResponse(str(index_file))
+    except Exception as e:
+        logger.error(f"Error: {str(e)}")
+        return {"error": str(e)}
