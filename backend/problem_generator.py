@@ -76,6 +76,26 @@ def generate_word_problem():
             "answer": 8,
             "explanation": "1. Let x be Max's current age\n2. Sam's age is 2x\n3. In 4 years: (2x + 4) = 1.5(x + 4)\n4. Solve: 2x + 4 = 1.5x + 6\n5. 0.5x = 2\n6. x = 4\nTherefore, Max is 8 years old"
         }
+        {
+            "question": "In an enclosure there is a group of kangaroos. If you add up the ages of all kangaroos you get 36 years. In two
+                        years all the kangaroos together will be 60 years old.
+                        How many kangaroos are in the enclosure?",
+            "answer": 12,
+            "explanation": "1. Let x be the number of kangaroos\n2. If you add up the ages of all kangaroos you get 36 years\n3. In two years all the kangaroos together will be 60 years old\n4. Solve: 36 + 2x = 60\n5. 2x = 24\n6. x = 12\nTherefore, there are 12 kangaroos in the enclosure"
+        }
+        {
+            "question": "The six smallest odd natural numbers are written on the sides of a die. Toni rolls the die three times and adds the
+                        numbers. Which sum will Toni not be able to make? The choices are: 3, 19, 21, 29, 35",
+            "answer": 33,
+            "explanation": "1. The six smallest odd natural numbers are 1, 3, 5, 7, 9, 11\n2. The possible sums of three numbers from this set are: 9, 11, 13, 15, 17, 19, 21\n3. The sum 15 is possible\n4. The sum 17 is possible\n5. The sum 19 is possible\n6. The sum 21 is possible\n7. 29 can be 11 + 9 + 9. But 35 is not possible since the maximum from 3 rolls is 33 (11 + 11 + 11)."
+        }
+        {
+            "question": "In a witch’s garden there are 30 animals: dogs, cats and mice. The witch changes 6 dogs into 6 cats and then 5
+                        cats into 5 mice. Now there is an equal number of dogs, cats and mice.
+                        How many cats were there to start with?",
+            "answer": 8,
+            "explanation": "d + c + m = 30. d - 6 = c + 6, d - c = 12; c - m = 4;  d + d - 12 + d + 8 = 30; 3d = 42; d = 14; c = 8; m = 4 "
+        }
         """
 
         # First, list available models to verify
