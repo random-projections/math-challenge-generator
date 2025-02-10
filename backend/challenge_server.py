@@ -10,7 +10,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:3000",  # Local development
-        "https://math_challenge_gen.railway.app",  # Railway frontend
+        "https://math-challenge-gen.railway.app",  # Railway frontend
         "https://*.up.railway.app",  # Any Railway subdomain
         os.getenv("FRONTEND_URL", "")  # Flexible frontend URL from environment
     ],
