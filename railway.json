@@ -2,17 +2,14 @@
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "NIXPACKS",
-    "buildCommand": "cd frontend && npm install && npm run build && pwd && ls -la build/",
-    "nixpacksPlan": {
-      "phases": {
-        "setup": {
-          "nixPkgs": ["python312", "nodejs", "python312Packages.pip"]
-        }
-      }
+    "buildCommand": "cd frontend && npm install && npm run build",
+    "env": {
+      "PYTHON_VERSION": "3.12.8",
+      "NODE_VERSION": "20.x"
     }
   },
   "deploy": {
-    "startCommand": "ls -la && python3 -m pip install -r backend/requirements.txt && cd backend && uvicorn challenge_server:app --host 0.0.0.0 --port $PORT --log-level debug",
+    "startCommand": "pip install -r backend/requirements.txt && cd backend && uvicorn challenge_server:app --host 0.0.0.0 --port $PORT",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   }
