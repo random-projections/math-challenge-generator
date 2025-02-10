@@ -99,7 +99,12 @@ def health_check():
 # Frontend routes should come AFTER API routes
 @app.get("/")
 async def root():
-    return {"message": "Server is running"}
+    try:
+        logger.info("Attempting to serve frontend")
+        return await serve_frontend("")
+    except Exception as e:
+        logger.error(f"Error serving frontend: {str(e)}")
+        return {"error": str(e)}
 
 @app.get("/{full_path:path}")
 async def serve_frontend(full_path: str):
