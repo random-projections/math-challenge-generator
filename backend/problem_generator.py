@@ -2,8 +2,11 @@ from openai import OpenAI
 import os
 from dotenv import load_dotenv
 import json
+import logging
 
 load_dotenv()
+
+logger = logging.getLogger(__name__)
 
 def get_fallback_problem():
     """Return a pre-generated problem when API is unavailable"""
@@ -48,34 +51,33 @@ def sanitize_json_string(s):
 def generate_word_problem():
     """Generate a math word problem using OpenAI"""
     api_key = os.getenv('OPENAI_API_KEY')
-    print("Using API Key:", api_key[:10] + "..." if api_key else "No API key found")
-    
     if not api_key:
+        logger.error("OpenAI API key not found")
         return get_fallback_problem()
 
-    client = OpenAI(api_key=api_key)
-
-    prompt = """Generate a math word problem with these requirements:
-    1. Suitable for grades 5-8, should be interesting and challenging puzzles
-    2. Assume the kid is a talented math student and is seeking acceleration
-    3. Do not hallucinate, the answer should be a number
-    4. Do not hallucinate. Make sure your answer is correct.
-    5. Return the response in this JSON format:
-    {
-        "question": "the word problem text",
-        "answer": numerical answer only,
-        "explanation": "step by step solution"
-    }
-    
-    Example:
-    {
-        "question": "Sam is twice the age of Max. In 4 years, he will be 1.5 times his age. How old is Max now?",
-        "answer": 8,
-        "explanation": "1. Let x be Max's current age\n2. Sam's age is 2x\n3. In 4 years: (2x + 4) = 1.5(x + 4)\n4. Solve: 2x + 4 = 1.5x + 6\n5. 0.5x = 2\n6. x = 4\nTherefore, Max is 8 years old"
-    }
-    """
-
     try:
+        client = OpenAI(api_key=api_key)
+
+        prompt = """Generate a math word problem with these requirements:
+        1. Suitable for grades 5-8, should be interesting and challenging puzzles
+        2. Assume the kid is a talented math student and is seeking acceleration
+        3. Do not hallucinate, the answer should be a number
+        4. Do not hallucinate. Make sure your answer is correct.
+        5. Return the response in this JSON format:
+        {
+            "question": "the word problem text",
+            "answer": numerical answer only,
+            "explanation": "step by step solution"
+        }
+        
+        Example:
+        {
+            "question": "Sam is twice the age of Max. In 4 years, he will be 1.5 times his age. How old is Max now?",
+            "answer": 8,
+            "explanation": "1. Let x be Max's current age\n2. Sam's age is 2x\n3. In 4 years: (2x + 4) = 1.5(x + 4)\n4. Solve: 2x + 4 = 1.5x + 6\n5. 0.5x = 2\n6. x = 4\nTherefore, Max is 8 years old"
+        }
+        """
+
         # First, list available models to verify
         models = client.models.list()
         available_models = [model.id for model in models]
@@ -118,8 +120,6 @@ def generate_word_problem():
             return get_fallback_problem()
         
     except Exception as e:
-        print(f"Error generating problem: {str(e)}")
-        import traceback
-        traceback.print_exc()
+        logger.error(f"Error initializing OpenAI client: {str(e)}")
         return get_fallback_problem() 
     

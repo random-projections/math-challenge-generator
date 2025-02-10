@@ -1,12 +1,14 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from problem_generator import generate_word_problem
 import os
 from pathlib import Path
 import logging
+import sys
+import traceback
 
 app = FastAPI()
 
@@ -41,6 +43,26 @@ else:
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+@app.on_event("startup")
+async def startup_event():
+    logger.info("Starting application...")
+    logger.info(f"Frontend directory: {FRONTEND_DIR}")
+    logger.info(f"Static files exist: {(FRONTEND_DIR / 'static').exists()}")
+    logger.info(f"Index file exists: {(FRONTEND_DIR / 'index.html').exists()}")
+
+# Add error handling middleware
+@app.middleware("http")
+async def catch_exceptions_middleware(request, call_next):
+    try:
+        return await call_next(request)
+    except Exception as e:
+        logger.error(f"Request failed: {str(e)}")
+        logger.error(traceback.format_exc())
+        return JSONResponse(
+            status_code=500,
+            content={"message": "Internal server error", "error": str(e)}
+        )
+
 # API routes should come BEFORE the catch-all frontend route
 @app.get("/api/problem")
 def get_problem():
@@ -72,17 +94,12 @@ def check_answer(answer_request: AnswerRequest):
 
 @app.get("/api/health")
 def health_check():
-    return {"status": "healthy", "message": "Math Challenge Generator API is running"}
+    return {"status": "ok"}
 
 # Frontend routes should come AFTER API routes
 @app.get("/")
 async def root():
-    try:
-        logger.info("Attempting to serve frontend")
-        return await serve_frontend("")
-    except Exception as e:
-        logger.error(f"Error serving frontend: {str(e)}")
-        return {"error": str(e)}
+    return {"message": "Server is running"}
 
 @app.get("/{full_path:path}")
 async def serve_frontend(full_path: str):
