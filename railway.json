@@ -2,11 +2,10 @@
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
     "builder": "NIXPACKS",
-    "buildCommand": "cd frontend && npm install && CI=false npm run build"
+    "buildCommand": "cd frontend && npm install && npm run build && cd ../backend && pip install -r requirements.txt"
   },
   "deploy": {
-    "numReplicas": 1,
-    "startCommand": "cd frontend && npx serve -s build -p $PORT",
+    "startCommand": "cd backend && uvicorn challenge_server:app --host 0.0.0.0 --port $PORT",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 10
   }

@@ -1,1 +1,0 @@
-web: cd frontend && npx serve -s build -p $PORT

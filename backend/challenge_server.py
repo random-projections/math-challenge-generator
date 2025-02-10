@@ -1,4 +1,5 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, StaticFiles, HTTPException
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from problem_generator import generate_word_problem
@@ -6,19 +7,15 @@ import os
 
 app = FastAPI()
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",  # Local development
-        "https://math-challenge-generator.up.railway.app",  # Updated frontend URL
-        "https://math-challenge-gen.railway.app",  # Alternative URL
-        "https://*.up.railway.app",  # Any Railway subdomain
-        os.getenv("FRONTEND_URL", "")  # Flexible frontend URL from environment
-    ],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# Serve frontend static files
+app.mount("/static", StaticFiles(directory="../frontend/build/static"), name="static")
+
+# Serve the React app for all other routes
+@app.get("/{full_path:path}")
+async def serve_frontend(full_path: str):
+    if full_path.startswith("api/"):
+        raise HTTPException(status_code=404)
+    return FileResponse("../frontend/build/index.html")
 
 class AnswerRequest(BaseModel):
     problem_id: int
@@ -28,7 +25,7 @@ class AnswerRequest(BaseModel):
 active_problems = {}
 problem_explanations = {}
 
-@app.get("/problem")
+@app.get("/api/problem")
 def get_problem():
     problem = generate_word_problem()
     problem_id = len(active_problems) + 1000  # Simple ID generation
@@ -41,7 +38,7 @@ def get_problem():
         "question": problem["question"]
     }
 
-@app.post("/check_answer")
+@app.post("/api/check_answer")
 def check_answer(answer_request: AnswerRequest):
     correct_answer = active_problems.get(answer_request.problem_id, None)
     if correct_answer is None:
@@ -56,6 +53,6 @@ def check_answer(answer_request: AnswerRequest):
         "explanation": problem_explanations.get(answer_request.problem_id, "No explanation available")
     }
 
-@app.get("/health")
+@app.get("/api/health")
 def health_check():
     return {"status": "healthy", "message": "Math Challenge Generator API is running"}
