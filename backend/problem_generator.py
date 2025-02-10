@@ -76,14 +76,27 @@ def generate_word_problem():
     """
 
     try:
+        # First, list available models to verify
+        models = client.models.list()
+        available_models = [model.id for model in models]
+        print(f"Available models: {available_models}")  # This will show all models you have access to
+        
+        model_name = "gpt-4"  # or whatever model you want to use
+        if model_name not in available_models:
+            print(f"Warning: {model_name} not available. Available models: {available_models}")
+            return get_fallback_problem()
+
         response = client.chat.completions.create(
-            model="chatgpt-4o-latest",
+            model=model_name,
             messages=[
                 {"role": "system", "content": "You are a math teacher creating word problems."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.7
         )
+        
+        # Add model verification to the response logging
+        print(f"Used model: {response.model}")  # This will show which model was actually used
         
         # Add debug logging
         content = response.choices[0].message.content
