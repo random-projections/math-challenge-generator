@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://math-challenge-gen-production.up.railway.app';
+const API_URL = '/api';  // Simplified as we're serving from same origin
 
 function MathChallenge() {
     const [problem, setProblem] = useState(null);
