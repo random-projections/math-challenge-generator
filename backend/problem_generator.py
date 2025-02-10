@@ -111,10 +111,14 @@ def generate_word_problem():
         response = client.chat.completions.create(
             model=model_name,
             messages=[
-                {"role": "system", "content": "You are a math teacher creating word problems."},
+                {"role": "user", "content": """Generate a math word problem with these requirements:
+        1. Suitable for grades 5-8, should be interesting and challenging puzzles
+        2. Assume the kid is a talented math student and is seeking acceleration
+        3. Do not hallucinate, the answer should be a number
+        4. Do not hallucinate. Make sure your answer is correct."""}
                 {"role": "user", "content": prompt}
             ],
-            temperature=0.7
+            temperature=0.2
         )
         
         # Add model verification to the response logging
