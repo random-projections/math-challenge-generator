@@ -103,7 +103,7 @@ def generate_word_problem():
         available_models = [model.id for model in models]
         print(f"Available models: {available_models}")  # This will show all models you have access to
         
-        model_name = "gpt-4"  # or whatever model you want to use
+        model_name = "gpt-4o-mini"  # or whatever model you want to use
         if model_name not in available_models:
             print(f"Warning: {model_name} not available. Available models: {available_models}")
             return get_fallback_problem()
