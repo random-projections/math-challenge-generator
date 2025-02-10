@@ -115,9 +115,8 @@ def generate_word_problem():
         1. Suitable for grades 5-8, should be interesting and challenging puzzles
         2. Assume the kid is a talented math student and is seeking acceleration
         3. Do not hallucinate, the answer should be a number
-        4. Do not hallucinate. Make sure your answer is correct."""}
-                {"role": "user", "content": prompt}
-            ],
+        4. Do not hallucinate. Make sure your answer is correct."""},
+                {"role": "user", "content": prompt}],
             temperature=0.2
         )
         
