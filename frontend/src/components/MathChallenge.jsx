@@ -115,13 +115,21 @@ function MathChallenge() {
             skipped: 0
         });
 
-        // Pre-fetch problems for instant loading
+        // Fetch first problem immediately to show it
         setLoading(true);
-        await prefetchProblems(5);
+        try {
+            const response = await axios.get(`${API_URL}/problem`);
+            setProblem(response.data);
+            setUserAnswer('');
+            setFeedback(null);
+            setShowExplanation(false);
+        } catch (error) {
+            console.error('Error fetching first problem:', error);
+        }
         setLoading(false);
 
-        // Show first problem from queue
-        fetchNewProblem();
+        // Pre-fetch remaining problems in background
+        prefetchProblems(4);
     };
 
     const endSession = () => {
