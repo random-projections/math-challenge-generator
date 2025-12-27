@@ -126,9 +126,8 @@ function MathChallenge() {
     };
 
     useEffect(() => {
-        if (!isSessionActive) {
-            fetchNewProblem();
-        }
+        fetchNewProblem();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const getCelebrationMessage = () => {
