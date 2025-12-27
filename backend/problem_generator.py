@@ -161,7 +161,6 @@ Now generate a new problem following these guidelines."""
                 {"role": "system", "content": system_message},
                 {"role": "user", "content": prompt}
             ],
-            temperature=0.8,
             response_format={"type": "json_object"}
         )
 
