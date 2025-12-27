@@ -20,6 +20,9 @@ function MathChallenge() {
     });
     const [showSummary, setShowSummary] = useState(false);
 
+    // Problem queue for pre-fetching
+    const [problemQueue, setProblemQueue] = useState([]);
+
     // Format problem type for display
     const formatProblemType = (type) => {
         if (!type) return 'Math';
@@ -54,30 +57,55 @@ function MathChallenge() {
         }).filter(Boolean);
     };
 
-    const fetchNewProblem = async () => {
-        setLoading(true);
-        console.log('Fetching from:', API_URL);
+    // Fetch a single problem and add to queue
+    const fetchProblemToQueue = async () => {
         try {
             const response = await axios.get(`${API_URL}/problem`);
-            console.log('Response:', response.data);
-            setProblem(response.data);
+            setProblemQueue(prev => [...prev, response.data]);
+        } catch (error) {
+            console.error('Error fetching problem to queue:', error);
+        }
+    };
+
+    // Pre-fetch multiple problems
+    const prefetchProblems = async (count = 5) => {
+        const promises = [];
+        for (let i = 0; i < count; i++) {
+            promises.push(fetchProblemToQueue());
+        }
+        await Promise.all(promises);
+    };
+
+    // Get next problem from queue or fetch if empty
+    const fetchNewProblem = async () => {
+        setLoading(true);
+        try {
+            if (problemQueue.length > 0) {
+                // Use problem from queue
+                const nextProblem = problemQueue[0];
+                setProblem(nextProblem);
+                setProblemQueue(prev => prev.slice(1));
+
+                // Refill queue if running low
+                if (problemQueue.length < 3) {
+                    fetchProblemToQueue();
+                }
+            } else {
+                // Queue empty, fetch directly
+                const response = await axios.get(`${API_URL}/problem`);
+                setProblem(response.data);
+            }
+
             setUserAnswer('');
             setFeedback(null);
             setShowExplanation(false);
         } catch (error) {
-            console.error('Error details:', error.message);
-            console.error('API URL used:', API_URL);
-            if (error.response) {
-                console.error('Response data:', error.response.data);
-                console.error('Response status:', error.response.status);
-            } else if (error.request) {
-                console.error('No response received');
-            }
+            console.error('Error fetching problem:', error);
         }
         setLoading(false);
     };
 
-    const startSession = () => {
+    const startSession = async () => {
         setIsSessionActive(true);
         setShowSummary(false);
         setSessionStats({
@@ -86,6 +114,13 @@ function MathChallenge() {
             incorrect: 0,
             skipped: 0
         });
+
+        // Pre-fetch problems for instant loading
+        setLoading(true);
+        await prefetchProblems(5);
+        setLoading(false);
+
+        // Show first problem from queue
         fetchNewProblem();
     };
 
@@ -133,10 +168,7 @@ function MathChallenge() {
         setShowExplanation(true);
     };
 
-    useEffect(() => {
-        fetchNewProblem();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    // No initial fetch - problems are fetched when session starts
 
     const getCelebrationMessage = () => {
         const percentage = sessionStats.total > 0 ? (sessionStats.correct / sessionStats.total) * 100 : 0;
