@@ -263,7 +263,7 @@ function MathChallenge() {
                     </div>
 
                     <button
-                        onClick={startSession}
+                        onClick={() => setShowSummary(false)}
                         className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-lg font-semibold"
                     >
                         Start New Session
