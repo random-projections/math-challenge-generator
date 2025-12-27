@@ -57,7 +57,7 @@ def sanitize_json_string(s):
     print("Sanitized content:", s)  # Debug print
     return s
 
-def generate_word_problem():
+def generate_word_problem(grade_level="5-8"):
     """Generate a math word problem using OpenAI"""
     api_key = os.getenv('OPENAI_API_KEY')
     if not api_key:
@@ -92,8 +92,31 @@ def generate_word_problem():
         selected_theme = random.choice(themes)
         selected_type = random.choice(problem_types)
 
-        # Build a more structured prompt
-        system_message = """You are an expert math educator creating engaging problems for talented 5th-8th grade students.
+        # Build a more structured prompt with grade-appropriate settings
+        grade_descriptions = {
+            "1-2": {
+                "description": "1st-2nd grade students",
+                "steps": "1-2 steps",
+                "complexity": "simple addition, subtraction, and basic counting",
+                "max_number": "Keep numbers under 100"
+            },
+            "3-5": {
+                "description": "3rd-5th grade students",
+                "steps": "2-3 steps",
+                "complexity": "multiplication, division, fractions, and basic decimals",
+                "max_number": "Keep numbers under 1000"
+            },
+            "5-8": {
+                "description": "5th-8th grade students",
+                "steps": "3-5 steps",
+                "complexity": "algebra, ratios, percentages, and multi-step reasoning",
+                "max_number": "Numbers can be larger but keep them reasonable"
+            }
+        }
+
+        grade_info = grade_descriptions.get(grade_level, grade_descriptions["5-8"])
+
+        system_message = f"""You are an expert math educator creating engaging problems for talented {grade_info['description']}.
 Your problems should be challenging but solvable, creative but grounded in real-world contexts."""
 
         prompt = f"""Create a math word problem with these specifications:
@@ -106,9 +129,11 @@ CONTEXT & ENGAGEMENT:
 - Avoid generic situations - be creative and fun!
 
 MATHEMATICAL REQUIREMENTS:
-- Suitable for grades 5-8
+- Suitable for {grade_info['description']}
+- Focus on: {grade_info['complexity']}
+- {grade_info['max_number']}
 - Answer must be a single numeric value (integer or decimal)
-- Problem should require 3-5 steps to solve (multi-step reasoning)
+- Problem should require {grade_info['steps']} to solve
 - Avoid problems requiring outside knowledge (no obscure facts)
 
 VERIFICATION (CRITICAL):

@@ -65,8 +65,8 @@ async def catch_exceptions_middleware(request, call_next):
 
 # API routes should come BEFORE the catch-all frontend route
 @app.get("/api/problem")
-def get_problem():
-    problem = generate_word_problem()
+def get_problem(grade_level: str = "5-8"):
+    problem = generate_word_problem(grade_level=grade_level)
     problem_id = len(active_problems) + 1000
 
     active_problems[problem_id] = problem["answer"]

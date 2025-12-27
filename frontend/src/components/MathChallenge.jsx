@@ -23,6 +23,9 @@ function MathChallenge() {
     // Problem queue for pre-fetching
     const [problemQueue, setProblemQueue] = useState([]);
 
+    // Grade level selection
+    const [selectedGrade, setSelectedGrade] = useState('5-8');
+
     // Format problem type for display
     const formatProblemType = (type) => {
         if (!type) return 'Math';
@@ -60,7 +63,9 @@ function MathChallenge() {
     // Fetch a single problem and add to queue
     const fetchProblemToQueue = async () => {
         try {
-            const response = await axios.get(`${API_URL}/problem`);
+            const response = await axios.get(`${API_URL}/problem`, {
+                params: { grade_level: selectedGrade }
+            });
             setProblemQueue(prev => [...prev, response.data]);
         } catch (error) {
             console.error('Error fetching problem to queue:', error);
@@ -71,9 +76,14 @@ function MathChallenge() {
     const prefetchProblems = async (count = 5) => {
         const promises = [];
         for (let i = 0; i < count; i++) {
-            promises.push(fetchProblemToQueue());
+            promises.push(axios.get(`${API_URL}/problem`, {
+                params: { grade_level: selectedGrade }
+            }));
         }
-        await Promise.all(promises);
+        const responses = await Promise.all(promises);
+        responses.forEach(response => {
+            setProblemQueue(prev => [...prev, response.data]);
+        });
     };
 
     // Get next problem from queue or fetch if empty
@@ -92,7 +102,9 @@ function MathChallenge() {
                 }
             } else {
                 // Queue empty, fetch directly
-                const response = await axios.get(`${API_URL}/problem`);
+                const response = await axios.get(`${API_URL}/problem`, {
+                    params: { grade_level: selectedGrade }
+                });
                 setProblem(response.data);
             }
 
@@ -118,7 +130,9 @@ function MathChallenge() {
         // Fetch first problem immediately to show it
         setLoading(true);
         try {
-            const response = await axios.get(`${API_URL}/problem`);
+            const response = await axios.get(`${API_URL}/problem`, {
+                params: { grade_level: selectedGrade }
+            });
             setProblem(response.data);
             setUserAnswer('');
             setFeedback(null);
@@ -261,6 +275,50 @@ function MathChallenge() {
                     <div className="text-6xl">🎯</div>
                     <h2 className="text-2xl font-semibold text-gray-700">Ready to practice math?</h2>
                     <p className="text-gray-600">Start a session to track your progress and see how well you do!</p>
+
+                    {/* Grade Level Selection */}
+                    <div className="max-w-md mx-auto">
+                        <label className="block text-lg font-semibold text-gray-700 mb-3">Choose Grade Level:</label>
+                        <div className="space-y-2">
+                            <label className="flex items-center justify-center p-3 border-2 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors"
+                                   style={{ borderColor: selectedGrade === '1-2' ? '#3B82F6' : '#E5E7EB' }}>
+                                <input
+                                    type="radio"
+                                    name="grade"
+                                    value="1-2"
+                                    checked={selectedGrade === '1-2'}
+                                    onChange={(e) => setSelectedGrade(e.target.value)}
+                                    className="mr-3"
+                                />
+                                <span className="text-lg">1st - 2nd Grade</span>
+                            </label>
+                            <label className="flex items-center justify-center p-3 border-2 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors"
+                                   style={{ borderColor: selectedGrade === '3-5' ? '#3B82F6' : '#E5E7EB' }}>
+                                <input
+                                    type="radio"
+                                    name="grade"
+                                    value="3-5"
+                                    checked={selectedGrade === '3-5'}
+                                    onChange={(e) => setSelectedGrade(e.target.value)}
+                                    className="mr-3"
+                                />
+                                <span className="text-lg">3rd - 5th Grade</span>
+                            </label>
+                            <label className="flex items-center justify-center p-3 border-2 rounded-lg cursor-pointer hover:bg-blue-50 transition-colors"
+                                   style={{ borderColor: selectedGrade === '5-8' ? '#3B82F6' : '#E5E7EB' }}>
+                                <input
+                                    type="radio"
+                                    name="grade"
+                                    value="5-8"
+                                    checked={selectedGrade === '5-8'}
+                                    onChange={(e) => setSelectedGrade(e.target.value)}
+                                    className="mr-3"
+                                />
+                                <span className="text-lg">5th - 8th Grade</span>
+                            </label>
+                        </div>
+                    </div>
+
                     <button
                         onClick={startSession}
                         className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-lg font-semibold"
