@@ -68,13 +68,16 @@ async def catch_exceptions_middleware(request, call_next):
 def get_problem():
     problem = generate_word_problem()
     problem_id = len(active_problems) + 1000
-    
+
     active_problems[problem_id] = problem["answer"]
     problem_explanations[problem_id] = problem["explanation"]
-    
+
     return {
         "problem_id": problem_id,
-        "question": problem["question"]
+        "question": problem["question"],
+        "theme": problem.get("theme", "general"),
+        "problem_type": problem.get("problem_type", "math"),
+        "num_steps": problem.get("num_steps", 1)
     }
 
 @app.post("/api/check_answer")
