@@ -28,6 +28,14 @@ function MathChallenge() {
         ).join(' ');
     };
 
+    // Format question text - split into sentences for better readability
+    const formatQuestion = (question) => {
+        if (!question) return [];
+        // Split by sentence endings (. ! ?) but keep the punctuation
+        const sentences = question.match(/[^.!?]+[.!?]+/g) || [question];
+        return sentences.map(s => s.trim()).filter(s => s.length > 0);
+    };
+
     // Format explanation with visual step separators
     const formatExplanation = (explanation) => {
         if (!explanation) return '';
@@ -239,8 +247,12 @@ function MathChallenge() {
                         )}
                     </div>
 
-                    <div className="text-xl text-center font-semibold">
-                        {problem.question}
+                    <div className="text-xl font-semibold space-y-2 text-left max-w-xl mx-auto">
+                        {formatQuestion(problem.question).map((sentence, index) => (
+                            <div key={index} className="leading-relaxed">
+                                {sentence}
+                            </div>
+                        ))}
                     </div>
 
                     {/* Only show input if user hasn't given up (viewed explanation) */}
