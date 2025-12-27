@@ -10,6 +10,16 @@ function MathChallenge() {
     const [loading, setLoading] = useState(false);
     const [showExplanation, setShowExplanation] = useState(false);
 
+    // Session tracking
+    const [isSessionActive, setIsSessionActive] = useState(false);
+    const [sessionStats, setSessionStats] = useState({
+        total: 0,
+        correct: 0,
+        incorrect: 0,
+        skipped: 0
+    });
+    const [showSummary, setShowSummary] = useState(false);
+
     // Format problem type for display
     const formatProblemType = (type) => {
         if (!type) return 'Math';
@@ -59,6 +69,25 @@ function MathChallenge() {
         setLoading(false);
     };
 
+    const startSession = () => {
+        setIsSessionActive(true);
+        setShowSummary(false);
+        setSessionStats({
+            total: 0,
+            correct: 0,
+            incorrect: 0,
+            skipped: 0
+        });
+        fetchNewProblem();
+    };
+
+    const endSession = () => {
+        setIsSessionActive(false);
+        setShowSummary(true);
+        setProblem(null);
+        setFeedback(null);
+    };
+
     const checkAnswer = async () => {
         if (!userAnswer) return;
 
@@ -69,20 +98,130 @@ function MathChallenge() {
             });
 
             setFeedback(response.data);
+
+            // Update session stats
+            if (isSessionActive) {
+                setSessionStats(prev => ({
+                    ...prev,
+                    total: prev.total + 1,
+                    correct: prev.correct + (response.data.correct ? 1 : 0),
+                    incorrect: prev.incorrect + (response.data.correct ? 0 : 1)
+                }));
+            }
         } catch (error) {
             console.error('Error checking answer:', error);
         }
     };
 
+    const handleShowExplanation = () => {
+        // If user views explanation without answering, count as skipped
+        if (isSessionActive && !feedback) {
+            setSessionStats(prev => ({
+                ...prev,
+                total: prev.total + 1,
+                skipped: prev.skipped + 1
+            }));
+        }
+        setShowExplanation(true);
+    };
+
     useEffect(() => {
-        fetchNewProblem();
+        if (!isSessionActive) {
+            fetchNewProblem();
+        }
     }, []);
+
+    const getCelebrationMessage = () => {
+        const percentage = sessionStats.total > 0 ? (sessionStats.correct / sessionStats.total) * 100 : 0;
+
+        if (percentage >= 90) {
+            return { emoji: "🏆", message: "Outstanding! You're a math superstar!", color: "text-yellow-600" };
+        } else if (percentage >= 70) {
+            return { emoji: "🎉", message: "Excellent work! You're doing great!", color: "text-green-600" };
+        } else if (percentage >= 50) {
+            return { emoji: "👍", message: "Good effort! Keep practicing!", color: "text-blue-600" };
+        } else {
+            return { emoji: "💪", message: "Keep going! Practice makes perfect!", color: "text-purple-600" };
+        }
+    };
 
     return (
         <div className="max-w-2xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-lg">
-            <h1 className="text-2xl font-bold mb-6 text-center">Math Challenge</h1>
+            <div className="flex items-center justify-between mb-6">
+                <h1 className="text-2xl font-bold">Math Challenge</h1>
 
-            {loading ? (
+                {isSessionActive && (
+                    <div className="flex items-center gap-4">
+                        <div className="text-sm">
+                            <span className="font-semibold">Score:</span>{' '}
+                            <span className="text-green-600">{sessionStats.correct}</span> /{' '}
+                            <span className="text-red-600">{sessionStats.incorrect}</span> /{' '}
+                            <span className="text-gray-600">{sessionStats.skipped} skipped</span>
+                        </div>
+                        <button
+                            onClick={endSession}
+                            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 text-sm"
+                        >
+                            End Session
+                        </button>
+                    </div>
+                )}
+            </div>
+
+            {showSummary ? (
+                // Summary View
+                <div className="text-center space-y-6">
+                    <div className="text-6xl">{getCelebrationMessage().emoji}</div>
+                    <h2 className={`text-3xl font-bold ${getCelebrationMessage().color}`}>
+                        {getCelebrationMessage().message}
+                    </h2>
+
+                    <div className="grid grid-cols-3 gap-4 max-w-md mx-auto">
+                        <div className="bg-green-50 p-4 rounded-lg">
+                            <div className="text-3xl font-bold text-green-600">{sessionStats.correct}</div>
+                            <div className="text-sm text-gray-600">Correct</div>
+                        </div>
+                        <div className="bg-red-50 p-4 rounded-lg">
+                            <div className="text-3xl font-bold text-red-600">{sessionStats.incorrect}</div>
+                            <div className="text-sm text-gray-600">Incorrect</div>
+                        </div>
+                        <div className="bg-gray-50 p-4 rounded-lg">
+                            <div className="text-3xl font-bold text-gray-600">{sessionStats.skipped}</div>
+                            <div className="text-sm text-gray-600">Skipped</div>
+                        </div>
+                    </div>
+
+                    <div className="bg-blue-50 p-6 rounded-lg max-w-md mx-auto">
+                        <div className="text-lg font-semibold mb-2">Total Questions</div>
+                        <div className="text-4xl font-bold text-blue-600">{sessionStats.total}</div>
+                        {sessionStats.total > 0 && (
+                            <div className="mt-2 text-lg">
+                                Accuracy: <span className="font-bold">{Math.round((sessionStats.correct / sessionStats.total) * 100)}%</span>
+                            </div>
+                        )}
+                    </div>
+
+                    <button
+                        onClick={startSession}
+                        className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-lg font-semibold"
+                    >
+                        Start New Session
+                    </button>
+                </div>
+            ) : !isSessionActive ? (
+                // Start Session View
+                <div className="text-center space-y-6">
+                    <div className="text-6xl">🎯</div>
+                    <h2 className="text-2xl font-semibold text-gray-700">Ready to practice math?</h2>
+                    <p className="text-gray-600">Start a session to track your progress and see how well you do!</p>
+                    <button
+                        onClick={startSession}
+                        className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-lg font-semibold"
+                    >
+                        Start Session
+                    </button>
+                </div>
+            ) : loading ? (
                 <div className="text-center">Loading...</div>
             ) : problem ? (
                 <div className="space-y-4">
@@ -139,10 +278,11 @@ function MathChallenge() {
                             
                             {!feedback.correct && (
                                 <button
-                                    onClick={() => setShowExplanation(!showExplanation)}
+                                    onClick={handleShowExplanation}
                                     className="w-full px-4 py-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+                                    disabled={showExplanation}
                                 >
-                                    {showExplanation ? 'Hide' : 'Show'} Explanation
+                                    {showExplanation ? 'Explanation Shown' : 'Show Explanation (Skip)'}
                                 </button>
                             )}
                             
