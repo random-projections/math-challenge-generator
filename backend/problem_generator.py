@@ -140,8 +140,9 @@ VERIFICATION (CRITICAL):
 After generating the problem:
 1. Solve it yourself step-by-step
 2. Verify your arithmetic is correct
-3. Check that the answer matches the question asked
-4. If anything doesn't work, revise the problem
+3. make sure that the problem doesnt contain redundant information 
+4. Check that the answer matches the question asked
+5. If anything doesn't work, revise the problem
 
 Return ONLY valid JSON in this exact format:
 {{
