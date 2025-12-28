@@ -77,20 +77,81 @@ def generate_word_problem(grade_level="5-8"):
             "animals and nature",
             "technology and gaming",
             "art and music",
-            "travel and adventure"
+            "travel and adventure",
+            "shopping and money",
+            "construction and building",
+            "gardening and plants",
+            "ocean and marine life",
+            "weather and seasons",
+            "books and reading",
+            "movies and entertainment",
+            "transportation",
+            "holidays and celebrations",
+            "school activities",
+            "pets and caring for animals",
+            "camping and outdoor activities",
+            "museums and exhibits",
+            "recycling and environment",
+            "parks and playgrounds",
+            "time and schedules",
+            "parties and events"
         ]
 
-        problem_types = [
-            "algebra with unknowns",
-            "ratios and proportions",
-            "geometry and spatial reasoning",
-            "number theory and patterns",
-            "logic puzzles with constraints",
-            "combinatorics and counting"
-        ]
+        # Grade-appropriate problem types
+        problem_types_by_grade = {
+            "1-2": [
+                "addition and subtraction",
+                "counting and skip counting",
+                "simple patterns",
+                "shapes and basic geometry",
+                "comparing numbers",
+                "money (coins and simple bills)",
+                "time (hours and half hours)",
+                "measurement with simple units",
+                "basic word problems",
+                "doubles and halves"
+            ],
+            "3-5": [
+                "multiplication and division",
+                "fractions and mixed numbers",
+                "decimals and place value",
+                "area and perimeter",
+                "time calculations",
+                "money and financial literacy",
+                "measurement conversions",
+                "multiples and factors",
+                "division with remainders",
+                "estimation and rounding",
+                "simple ratios",
+                "basic probability",
+                "data analysis and averages",
+                "volume and capacity",
+                "number theory and patterns"
+            ],
+            "5-8": [
+                "algebra with unknowns",
+                "ratios and proportions",
+                "geometry and spatial reasoning",
+                "percentages and discounts",
+                "rate and speed problems",
+                "probability",
+                "sequences and series",
+                "unit rates",
+                "scale and scaling",
+                "data analysis and statistics",
+                "inequalities",
+                "systems of equations",
+                "exponents and powers",
+                "square roots and perfect squares",
+                "prime and composite numbers",
+                "combinatorics and counting",
+                "logic puzzles with constraints"
+            ]
+        }
 
         selected_theme = random.choice(themes)
-        selected_type = random.choice(problem_types)
+        grade_problem_types = problem_types_by_grade.get(grade_level, problem_types_by_grade["5-8"])
+        selected_type = random.choice(grade_problem_types)
 
         # Build a more structured prompt with grade-appropriate settings
         grade_descriptions = {
