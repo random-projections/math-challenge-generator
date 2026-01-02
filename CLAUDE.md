@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Math Challenge Generator is a full-stack web application that generates AI-powered math word problems for grades 5-8 students. The application uses OpenAI's GPT-4o model to create challenging, age-appropriate math puzzles with step-by-step explanations.
+Math Challenge Generator is a full-stack web application that generates AI-powered math word problems for grades 1-8 students. The application uses OpenAI's o3-mini reasoning model to create challenging, age-appropriate math puzzles with step-by-step explanations.
 
 ## Architecture
 
@@ -17,11 +17,11 @@ Math Challenge Generator is a full-stack web application that generates AI-power
   - Serves static frontend files from `frontend/build/`
 
 - **problem_generator.py**: OpenAI integration for generating math problems
-  - Uses GPT-4o model (configurable via model_name variable)
-  - Temperature set to 0.7 for balanced creativity/consistency
+  - Uses o3-mini reasoning model (configurable via model parameter in API call)
+  - Uses JSON mode for structured output
   - Includes fallback problems when OpenAI API is unavailable
   - Returns JSON with `question`, `answer` (numeric), and `explanation` (step-by-step solution)
-  - Validates model availability before making requests
+  - Supports multiple grade levels (1-2, 3-5, 5-8) with appropriate difficulty
 
 ### Frontend (React + Tailwind CSS)
 - **App.js**: Root component that wraps MathChallenge component
@@ -116,8 +116,8 @@ Backend tests use pytest with FastAPI's TestClient. Tests currently assume simpl
 
 ## Model Configuration
 
-To change the OpenAI model (problem_generator.py:99):
-- Current: `gpt-4o`
-- The code validates model availability before use
-- Falls back to pre-generated problems if model is unavailable
-- Temperature is set to 0.7 for balanced creativity
+To change the OpenAI model (problem_generator.py:246):
+- Current: `o3-mini` (OpenAI's reasoning model)
+- The model is specified in the `client.chat.completions.create()` call
+- Falls back to pre-generated problems if API is unavailable or errors occur
+- Uses `response_format={"type": "json_object"}` for structured JSON output
