@@ -37,8 +37,9 @@ function MathChallenge() {
     // Format question text - split into sentences for better readability
     const formatQuestion = (question) => {
         if (!question) return [];
-        // Split by sentence endings (. ! ?) but keep the punctuation
-        const sentences = question.match(/[^.!?]+[.!?]+/g) || [question];
+        // Split by sentence endings (. ! ?) but NOT decimal points (e.g., 3.14)
+        // Look for punctuation followed by whitespace or end of string, not preceded by a digit
+        const sentences = question.match(/[^.!?]+(?:\.\d+)*[.!?](?=\s|$)/g) || [question];
         return sentences.map(s => s.trim()).filter(s => s.length > 0);
     };
 
